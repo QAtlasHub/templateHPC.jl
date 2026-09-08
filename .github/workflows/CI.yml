@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with: { version: '1' }
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
 
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with: { version: '1' }
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Instantiate the example project
         working-directory: projects/ExampleSweep
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with: { version: '1' }
-      - uses: julia-actions/cache@v2
+      - uses: julia-actions/cache@v3
       - name: Run it, then check nothing of the template is left behind
         run: |
           set -euo pipefail
