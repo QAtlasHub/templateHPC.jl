@@ -9,9 +9,8 @@ using ParamIO: ParamIO
 using Printf
 
 const CONFIG = get(ARGS, 1, joinpath(@__DIR__, "..", "configs", "smoke.toml"))
-const OUTDIR = get(ENV, "DATAVAULT_OUTDIR", joinpath(@__DIR__, "..", "out"))
 
-vault = DataVault.Vault(CONFIG; run="phase1", outdir=OUTDIR)
+vault = DataVault.Vault(CONFIG; run="phase1")
 rows = ExampleSweep.summarise(vault)          # the same reduction report/ uses
 
 @printf("\n  %-8s %-10s %s\n", "a", "dt", "rel_error")

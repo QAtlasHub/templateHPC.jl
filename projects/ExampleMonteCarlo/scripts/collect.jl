@@ -8,9 +8,8 @@ using ParamIO: ParamIO
 using Printf
 
 const CONFIG = get(ARGS, 1, joinpath(@__DIR__, "..", "configs", "smoke.toml"))
-const OUTDIR = get(ENV, "DATAVAULT_OUTDIR", joinpath(@__DIR__, "..", "out"))
 
-vault = DataVault.Vault(CONFIG; run="phase1", outdir=OUTDIR)
+vault = DataVault.Vault(CONFIG; run="phase1")
 rows = ExampleMonteCarlo.summarise(vault)
 
 @printf("\n  %-5s %-7s %-11s %-11s %s\n", "L", "kbT", "E/N", "|M|", "Binder")
