@@ -1,0 +1,20 @@
+# report/ — the render environment. SEPARATE from the compute env one level up: that one runs on a
+# cluster and carries no plotting backend, while this reads the same on-disk vault and draws it.
+# The reduction is not duplicated here — it is `../src/ExampleMonteCarlo.jl`, and both sides call it.
+#
+# No `name`/`uuid`: an environment, not a package.
+
+[deps]
+DataVault = "23f5f8f6-b4da-40ee-8c72-c53b6c5de94f"
+ExampleMonteCarlo = "00000000-0000-4000-8000-000000000003"
+ParamIO = "938a3ac2-d340-473c-bcf1-88af577e4ccf"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+
+[sources]
+ExampleMonteCarlo = {path = ".."}
+
+[compat]
+DataVault = "0.7"
+ParamIO = "0.4"
+Plots = "1"
+julia = "1.10"

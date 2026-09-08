@@ -1,0 +1,34 @@
+name = "ExampleMonteCarlo"
+uuid = "00000000-0000-4000-8000-000000000003"
+version = "0.1.0"
+authors = ["Your Name <you@example.com>"]
+
+# COMPUTE env. No plotting backend and no Pinax — those are in `report/`, which reads the same vault
+# off disk. That separation is the reason this project can exist at all: the physics packages below
+# were each carrying Plots as a hard dependency until it was moved behind an extension, and a
+# `load=` of the work module ships whatever it pulls to every worker.
+
+[deps]
+ClassicalMonteCarlo = "faaa8aa3-7fc9-41cf-84af-9d0c24f78989"
+DataVault = "23f5f8f6-b4da-40ee-8c72-c53b6c5de94f"
+Lattice2D = "e8031020-b7ff-4f1d-bee4-f79aea4cf140"
+ParamIO = "938a3ac2-d340-473c-bcf1-88af577e4ccf"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SweepRunner = "be946ad2-3cb3-4b6e-8f7e-4a5ecc3c255b"
+
+[sources]
+# None of these four is in a public registry yet; ParamIO and DataVault resolve from General.
+ClassicalMonteCarlo = {rev = "main", url = "https://github.com/sotashimozono/ClassicalMonteCarlo.jl"}
+Lattice2D = {rev = "main", url = "https://github.com/sotashimozono/Lattice2D.jl"}
+SweepRunner = {rev = "main", url = "https://github.com/QAtlasHub/SweepRunner.jl"}
+
+[compat]
+DataVault = "0.7"
+ParamIO = "0.4"
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
