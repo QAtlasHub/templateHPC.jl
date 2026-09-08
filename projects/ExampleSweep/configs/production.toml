@@ -1,0 +1,8 @@
+# The real sweep. Same file shape as `smoke.toml`; only the ranges differ, so a
+# config that works small is the config that runs big.
+[sweep]
+L    = [8, 12, 16, 20]
+h    = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+
+[run]
+out  = "out"

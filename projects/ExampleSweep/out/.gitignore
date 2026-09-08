@@ -1,0 +1,6 @@
+# DataVault writes here. Results are not source; keep the directory, drop the data.
+*
+!.gitignore
+!log/
+log/*
+!log/.gitkeep

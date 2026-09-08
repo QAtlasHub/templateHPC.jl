@@ -1,0 +1,7 @@
+# Small but not trivial — the size you submit once to see the queue behave.
+[sweep]
+L    = [8, 12]
+h    = [0.5, 1.0, 1.5]
+
+[run]
+out  = "out"

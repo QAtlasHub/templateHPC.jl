@@ -1,0 +1,30 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with: { version: '1' }
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+      - uses: julia-actions/julia-runtest@v1
+
+  # The point of the template is that a project resolves and its smoke sweep
+  # runs. A green library with a broken project would be the wrong kind of green.
+  project:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with: { version: '1' }
+      - uses: julia-actions/cache@v2
+      - name: Instantiate and smoke-run ExampleSweep
+        working-directory: projects/ExampleSweep
+        run: |
+          julia --project=. -e 'using Pkg; Pkg.instantiate()'
+          julia --project=. scripts/compute.jl configs/smoke.toml

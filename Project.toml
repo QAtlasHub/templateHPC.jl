@@ -1,0 +1,19 @@
+name = "MyModule"
+uuid = "00000000-0000-4000-8000-000000000000"
+version = "0.1.0"
+authors = ["Your Name <you@example.com>"]
+
+# The SHARED library. Physics, models, anything more than one project needs.
+# It deliberately has no HPC dependency: the sweep machinery lives in the
+# per-project environments under `projects/`, which depend on this by path.
+
+[deps]
+
+[compat]
+julia = "1.10"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

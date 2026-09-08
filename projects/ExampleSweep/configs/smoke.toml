@@ -1,0 +1,7 @@
+# Two points. Runs in seconds on a laptop; proves the wiring before a queue does.
+[sweep]
+L    = [8]
+h    = [0.5, 1.0]
+
+[run]
+out  = "out"
