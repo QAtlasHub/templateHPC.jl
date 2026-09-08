@@ -3,7 +3,10 @@
 #
 #     julia --project=. scripts/collect.jl configs/smoke.toml
 
-using DataVault, ExampleSweep, ParamIO, Printf
+using DataVault: DataVault
+using ExampleSweep: ExampleSweep
+using ParamIO: ParamIO
+using Printf
 
 const CONFIG = get(ARGS, 1, joinpath(@__DIR__, "..", "configs", "smoke.toml"))
 const OUTDIR = get(ENV, "DATAVAULT_OUTDIR", joinpath(@__DIR__, "..", "out"))

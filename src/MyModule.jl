@@ -45,9 +45,7 @@ returns and writes the `.done` marker. Returning a non-`Dict` is a runtime error
 function work_fn(key)
     a = Float64(key.params["system.a"])
     dt = Float64(key.params["numerics.dt"])
-    return Dict{String,Any}(
-        "a" => a, "dt" => dt, "rel_error" => decay_error(a, dt)
-    )
+    return Dict{String,Any}("a" => a, "dt" => dt, "rel_error" => decay_error(a, dt))
 end
 
 end # module MyModule

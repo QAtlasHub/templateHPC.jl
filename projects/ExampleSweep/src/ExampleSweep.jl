@@ -4,7 +4,7 @@ module ExampleSweep
 # because both call it — a summary printed on the cluster and a figure drawn
 # afterwards then cannot report different numbers.
 
-using DataVault
+using DataVault: DataVault
 
 export summarise
 

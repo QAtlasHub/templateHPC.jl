@@ -8,17 +8,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
-# NOT the org's sharded-tests reusable, deliberately. That one shards a package's
-# suite and expects TestShards in the test environment; this repository's library
-# has one trivial test and would be forcing a dependency on everyone who presses
-# "Use this template". What actually needs checking here is different anyway: that
-# a project environment RESOLVES and that its scripts run — a green library beside
-# a project that cannot instantiate would be the wrong kind of green.
+# NOT the org's sharded-tests reusable, deliberately. That one shards a package's suite and expects
+# TestShards in the test environment, which would force a dependency on everyone who presses "Use
+# this template". What needs checking here is different: that every project environment resolves and
+# that its smoke sweep runs. A green library beside a project that cannot instantiate would be the
+# wrong kind of green.
 #
-# `setup.sh` is deliberately NOT run here. It rewrites names and re-issues UUIDs,
-# which is a step the person starting a study should take knowingly rather than
-# find already done for them. The cost is that its failure modes are not covered
-# by CI, so a change to it has to be exercised by hand.
+# `setup.sh` is deliberately NOT run here. It rewrites names and re-issues UUIDs, which is a step the
+# person starting a study should take knowingly rather than find already done for them. The cost is
+# that its failure modes are not covered by CI, so a change to it has to be exercised by hand.
 jobs:
   library:
     runs-on: ubuntu-latest
@@ -30,20 +28,62 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
 
+  # Every directory under `projects/` that carries a Project.toml is its own environment, so each
+  # gets its own run rooted there. Discovered from the tree rather than listed here: a list and a
+  # tree disagree the first time someone copies a project and forgets to add it.
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.find.outputs.projects }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: find
+        run: |
+          set -euo pipefail
+          found="$(find projects -mindepth 2 -maxdepth 2 -name Project.toml -printf '%h\n' | sort)"
+          test -n "$found" || { echo "no projects/*/Project.toml found" >&2; exit 1; }
+          echo "$found" | sed 's/^/  /' >&2
+          echo "projects=$(printf '%s' "$found" | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+
   project:
+    needs: discover
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.discover.outputs.projects) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3
         with: { version: '1' }
       - uses: julia-actions/cache@v3
-      - name: Instantiate the example project
-        working-directory: projects/ExampleSweep
+      - name: Instantiate
+        working-directory: ${{ matrix.project }}
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
       - name: Its own tests
-        working-directory: projects/ExampleSweep
-        run: julia --project=. test/runtests.jl
-      - name: The reduction both faces call
-        working-directory: projects/ExampleSweep
-        run: julia --project=. scripts/collect.jl out
+        working-directory: ${{ matrix.project }}
+        run: |
+          set -euo pipefail
+          test -f test/runtests.jl || { echo "no test/runtests.jl" >&2; exit 1; }
+          julia --project=. test/runtests.jl
+      # Every project ships `configs/smoke.toml`: the size that proves the wiring before a queue
+      # does. Running it here is what makes this job mean "the sweep works", not "it resolved".
+      - name: Smoke sweep, then read it back
+        working-directory: ${{ matrix.project }}
+        run: |
+          set -euo pipefail
+          test -f configs/smoke.toml || { echo "no configs/smoke.toml" >&2; exit 1; }
+          julia --project=. scripts/compute.jl configs/smoke.toml
+          julia --project=. scripts/collect.jl configs/smoke.toml
 
+  # One stable context for the branch ruleset to require. A matrix job's own checks are named after
+  # the matrix entry, so requiring `project` directly would require a context that stops being
+  # reported the moment a project is added or renamed.
+  projects-passed:
+    needs: project
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          test "${{ needs.project.result }}" = "success" \
+            || { echo "a project failed: ${{ needs.project.result }}" >&2; exit 1; }
