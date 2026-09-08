@@ -1,10 +1,21 @@
 name: CI
 on:
-  push: { branches: [main] }
+  push: { branches: [main], tags: ['*'] }
   pull_request:
+  workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+# NOT the org's sharded-tests reusable, deliberately. That one shards a package's
+# suite and expects TestShards in the test environment; this repository's library
+# has one trivial test and would be forcing a dependency on everyone who presses
+# "Use this template". What actually needs checking here is different anyway: that
+# a project environment RESOLVES and that its scripts run — a green library beside
+# a project that cannot instantiate would be the wrong kind of green.
 jobs:
-  test:
+  library:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,8 +25,6 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
 
-  # The point of the template is that a project resolves and its smoke sweep
-  # runs. A green library with a broken project would be the wrong kind of green.
   project:
     runs-on: ubuntu-latest
     steps:
@@ -23,8 +32,31 @@ jobs:
       - uses: julia-actions/setup-julia@v2
         with: { version: '1' }
       - uses: julia-actions/cache@v2
-      - name: Instantiate and smoke-run ExampleSweep
+      - name: Instantiate the example project
         working-directory: projects/ExampleSweep
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+      - name: Its own tests
+        working-directory: projects/ExampleSweep
+        run: julia --project=. test/runtests.jl
+      - name: The reduction both faces call
+        working-directory: projects/ExampleSweep
+        run: julia --project=. scripts/collect.jl out
+
+  setup:
+    # `setup.sh` is the first thing anyone runs, so it is the first thing that can
+    # be broken. Renaming and re-issuing UUIDs across four Project.toml files is
+    # exactly the kind of edit that works until one path is missed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with: { version: '1' }
+      - uses: julia-actions/cache@v2
+      - name: Run it, then check nothing of the template is left behind
         run: |
-          julia --project=. -e 'using Pkg; Pkg.instantiate()'
-          julia --project=. scripts/compute.jl configs/smoke.toml
+          set -euo pipefail
+          ./setup.sh MyStudy FirstSweep
+          test -f src/MyStudy.jl
+          test -f projects/FirstSweep/src/FirstSweep.jl
+          ! grep -rn "MyModule\|ExampleSweep\|00000000-0000-4000-8000" . \
+              --exclude-dir=.git --exclude-dir=out --exclude=setup.sh

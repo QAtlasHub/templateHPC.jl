@@ -1,0 +1,59 @@
+name: 🐛 Bug Report
+description: テンプレートの不具合を報告する
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        報告ありがとうございます。テンプレート**そのもの**の問題（`setup.sh`、
+        プロジェクトが解決しない、CI が通らない等）はここへ。あなたの study の
+        コードの問題は、その repository の issue へお願いします。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What kind of issue are you experiencing?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where it happened
+      options:
+        - "Use this template / clone"
+        - "./setup.sh"
+        - "Pkg.instantiate (library)"
+        - "Pkg.instantiate (projects/<name>)"
+        - "scripts/compute.jl"
+        - "report/"
+        - "batch/ (SLURM submission)"
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Commands to Reproduce
+      description: The exact commands, from a fresh copy of the template.
+      placeholder: |
+        ```bash
+        ./setup.sh MyStudy FirstSweep
+        ```
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Information
+      placeholder: |
+        - Julia version:
+        - OS:
+        - Scheduler (if any):
+    validations:
+      required: false

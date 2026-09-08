@@ -1,0 +1,8 @@
+name: Docs Preview
+on: { pull_request: {} }
+jobs:
+  preview:
+    uses: QAtlasHub/.github/.github/workflows/docs-preview.yml@main
+    with:
+      preview-base: 'https://qatlashub.github.io'
+    secrets: inherit

@@ -1,0 +1,18 @@
+name: 💭 Wish List
+description: Ideas for future features and improvements
+title: "[Wish]: "
+labels: ["wishlist", "future"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Record ideas for the template's shape — a directory that should exist, a
+        separation that should be enforced, a script that every study rewrites.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What would you like the template to do, and what does it cost today without it?
+    validations:
+      required: true
