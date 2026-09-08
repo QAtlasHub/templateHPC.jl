@@ -1,9 +1,22 @@
-# Read the finished vault and report it as text. No plotting dependency, so this
-# can run on the machine that did the compute.
+# The reader side. `compute.jl` never called save! — the runtime persisted every
+# work_fn return for us. No plotting dependency, so this runs where the compute did.
 #
-#     julia --project=. scripts/collect.jl out
-using DataVault, ExampleSweep
+#     julia --project=. scripts/collect.jl configs/smoke.toml
 
-vault = DataVault.Vault(get(ARGS, 1, "out"))
-s = ExampleSweep.summarise(vault)          # the same reduction report/report.jl uses
-@info "collected" s...
+using DataVault: DataVault
+using ExampleSweep: ExampleSweep
+using ParamIO: ParamIO
+using Printf
+
+const CONFIG = get(ARGS, 1, joinpath(@__DIR__, "..", "configs", "smoke.toml"))
+const OUTDIR = get(ENV, "DATAVAULT_OUTDIR", joinpath(@__DIR__, "..", "out"))
+
+vault = DataVault.Vault(CONFIG; run="phase1", outdir=OUTDIR)
+rows = ExampleSweep.summarise(vault)          # the same reduction report/ uses
+
+@printf("\n  %-8s %-10s %s\n", "a", "dt", "rel_error")
+println("  ─────────────────────────────────────")
+for r in rows
+    @printf("  %-8.4g %-10.4g %.3e\n", r.a, r.dt, r.rel_error)
+end
+@printf("\n  %d points\n\n", length(rows))
