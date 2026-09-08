@@ -14,6 +14,11 @@ concurrency:
 # "Use this template". What actually needs checking here is different anyway: that
 # a project environment RESOLVES and that its scripts run — a green library beside
 # a project that cannot instantiate would be the wrong kind of green.
+#
+# `setup.sh` is deliberately NOT run here. It rewrites names and re-issues UUIDs,
+# which is a step the person starting a study should take knowingly rather than
+# find already done for them. The cost is that its failure modes are not covered
+# by CI, so a change to it has to be exercised by hand.
 jobs:
   library:
     runs-on: ubuntu-latest
@@ -42,21 +47,3 @@ jobs:
         working-directory: projects/ExampleSweep
         run: julia --project=. scripts/collect.jl out
 
-  setup:
-    # `setup.sh` is the first thing anyone runs, so it is the first thing that can
-    # be broken. Renaming and re-issuing UUIDs across four Project.toml files is
-    # exactly the kind of edit that works until one path is missed.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: julia-actions/setup-julia@v3
-        with: { version: '1' }
-      - uses: julia-actions/cache@v3
-      - name: Run it, then check nothing of the template is left behind
-        run: |
-          set -euo pipefail
-          ./setup.sh MyStudy FirstSweep
-          test -f src/MyStudy.jl
-          test -f projects/FirstSweep/src/FirstSweep.jl
-          ! grep -rn "MyModule\|ExampleSweep\|00000000-0000-4000-8000" . \
-              --exclude-dir=.git --exclude-dir=out --exclude=setup.sh
