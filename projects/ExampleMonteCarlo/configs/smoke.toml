@@ -1,0 +1,24 @@
+# Ising on a square lattice, swept over size and temperature. The exact transition of the 2D Ising
+# model is at kbT/J = 2/ln(1+√2) ≈ 2.269, which is why the grids below crowd there: a sweep is worth
+# running when the interesting thing happens between two of its points.
+#
+# A LIST value is a swept axis; a SCALAR is fixed. In DataKey.params the entries appear under their
+# DOTTED names, e.g. "system.kbT".
+
+[study]
+project_name  = "ising"
+total_samples = 1
+outdir        = "out"
+
+[datavault]
+path_keys = ["system.L", "system.kbT"]
+
+[[paramsets]]
+
+[paramsets.system]
+L   = [8]
+kbT = [2.0, 2.5]
+
+[paramsets.numerics]
+nsteps = 200
+burn   = 100
