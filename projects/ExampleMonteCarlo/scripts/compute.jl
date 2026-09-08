@@ -18,11 +18,14 @@ using ParamIO: ParamIO
 using SweepRunner: SweepRunner
 
 const CONFIG = get(ARGS, 1, joinpath(@__DIR__, "..", "configs", "smoke.toml"))
-const OUTDIR = get(ENV, "DATAVAULT_OUTDIR", joinpath(@__DIR__, "..", "out"))
 
 spec = ParamIO.load(CONFIG)
 keys = ParamIO.expand(spec)
-vault = DataVault.Vault(CONFIG; run="phase1", outdir=OUTDIR)
+# `outdir` is NOT passed. DataVault resolves it itself — kwarg, then DATAVAULT_OUTDIR, then the
+# config's [study] outdir — and a kwarg wins, so reading the environment here and handing the result
+# over would silently make the config's own setting unreachable. The config decides where its
+# results go; the driver only says which run.
+vault = DataVault.Vault(CONFIG; run="phase1")
 
 SweepRunner.init_workers!(; mode=:auto)
 opts = SweepRunner.RunOpts(; stop_flag=get(ENV, "PM_STOP_FLAG", nothing))

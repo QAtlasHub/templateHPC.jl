@@ -8,9 +8,8 @@ using ExampleSweep: ExampleSweep
 using ParamIO: ParamIO
 
 const CONFIG = get(ARGS, 1, joinpath(@__DIR__, "..", "configs", "smoke.toml"))
-const OUTDIR = get(ENV, "DATAVAULT_OUTDIR", joinpath(@__DIR__, "..", "out"))
 
-vault = DataVault.Vault(CONFIG; run="phase1", outdir=OUTDIR)
+vault = DataVault.Vault(CONFIG; run="phase1")
 rows = ExampleSweep.summarise(vault)          # the same reduction scripts/collect.jl uses
 
 @info "reporting over" n = length(rows)
