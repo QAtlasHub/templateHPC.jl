@@ -1,7 +1,25 @@
-# Small but not trivial — the size you submit once to see the queue behave.
-[sweep]
-L    = [8, 12]
-h    = [0.5, 1.0, 1.5]
+# One file, read by all three layers:
+#   ParamIO.load(this)    -> ConfigSpec      ([study], [datavault], [[paramsets]])
+#   DataVault.Vault(this) -> Vault           ([study] for project_name/outdir,
+#                                             [datavault] path_keys for directory names)
+#   SweepRunner.run!      -> over the DataKeys ParamIO expands from it
+#
+# A LIST value is a swept axis; a SCALAR is fixed. In DataKey.params the entries
+# appear under their DOTTED names, e.g. "system.a".
 
-[run]
-out  = "out"
+[study]
+project_name  = "example"
+total_samples = 1
+outdir        = "out"
+
+[datavault]
+# Which params name the on-disk directory and the canonical key identity.
+path_keys = ["system.a", "numerics.dt"]
+
+[[paramsets]]
+
+[paramsets.system]
+a = [0.5, 1.0]
+
+[paramsets.numerics]
+dt = [1.0e-2, 5.0e-3]
