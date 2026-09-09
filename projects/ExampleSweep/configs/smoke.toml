@@ -22,4 +22,4 @@ path_keys = ["system.a", "numerics.dt"]
 a = [1.0]
 
 [paramsets.numerics]
-dt = [1.0e-2]
+dt = [0.01]

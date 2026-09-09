@@ -22,4 +22,6 @@ path_keys = ["system.a", "numerics.dt"]
 a = [0.25, 0.5, 1.0, 2.0, 4.0]
 
 [paramsets.numerics]
-dt = [1.0e-2, 5.0e-3, 2.5e-3, 1.25e-3]
+# Distinct under `%.2f`, which is what names the directory, and exact divisors of 1.0, which
+# `decay_error`'s `n = round(Int, t_end/dt)` needs. A halving sequence satisfies neither.
+dt = [0.1, 0.05, 0.02, 0.01]
