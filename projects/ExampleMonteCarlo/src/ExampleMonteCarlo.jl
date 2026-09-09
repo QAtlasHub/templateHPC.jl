@@ -83,13 +83,9 @@ end
     summarise(pairs) -> Vector{NamedTuple}
     summarise(vault) -> Vector{NamedTuple}
 
-Every finished point, sorted. The `pairs` method is the reduction; the `vault` method only reads the
-vault and hands it over.
-
-Two entry points because the two callers arrive holding different things. `scripts/collect.jl` has a
-vault and nothing else. `report/report.jl` is handed `(DataKey, Dict)` pairs by `Pinax.report`, which
-already walked the vault — a `vault` method there would read the same files twice. One reduction
-either way, so the table printed on the cluster and the figure drawn afterwards cannot disagree.
+Every finished point, sorted. `pairs` is the reduction; the `vault` method only reads them off
+disk first — `Pinax.report` already holds the pairs, `scripts/collect.jl` does not. One reduction
+either way, so the two cannot report different numbers.
 """
 function summarise(pairs::AbstractVector)
     rows = NamedTuple[]

@@ -12,15 +12,9 @@ export summarise
     summarise(pairs) -> Vector{NamedTuple}
     summarise(vault) -> Vector{NamedTuple}
 
-Reduce every finished point. The `pairs` method is the reduction; the `vault` method
-only reads the vault and hands it over.
-
-Two entry points because the two callers arrive holding different things.
-`scripts/collect.jl` has a vault and nothing else. `report/report.jl` has already been
-handed `(DataKey, Dict)` pairs by `Pinax.report`, which walked the vault itself — so a
-`vault` method would make it read the same files a second time. Splitting here keeps
-ONE reduction: the table printed on the cluster and the figure drawn afterwards cannot
-report different numbers.
+Reduce every finished point. `pairs` is the reduction; the `vault` method only reads
+them off disk first — `Pinax.report` already holds the pairs, `scripts/collect.jl` does
+not. One reduction either way, so the two cannot report different numbers.
 
 Replace the body; keep the shape.
 """

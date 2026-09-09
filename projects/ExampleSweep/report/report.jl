@@ -1,25 +1,12 @@
-#==============================================================================
- report.jl — the vault → figures driver. Run with `--project=report`, never the
- compute env; that separation is the whole reason `report/` has its own manifest.
-
-     julia --project=report report/report.jl configs/production.toml
-
- `Pinax.report(vault, recipe)` is the seam. It lives in `PinaxDataVaultExt`, an
- extension that loads when Pinax, DataVault and ParamIO are all present — which
- is why report/Project.toml declares ParamIO even though DataVault would drag it
- in anyway. Without the extension the core `Pinax.report` is an error stub, so a
- missing dependency shows up as a message about DataVault, not as a MethodError.
-
- The DRIVER is project-independent: discover the vault's `:done` keys, load each
- payload, hand the `(DataKey, Dict)` pairs to `recipe`, render the gallery (for a
- human) and agent.json (for an LLM) with the vault wired in, so the figure cache
- tracks each key's `.done` fingerprint and provenance is recorded. Only `recipe`
- below is yours.
-==============================================================================#
+# report.jl — the finished vault, rendered twice: an HTML gallery for a human and an
+# `agent.json` for an LLM. `Pinax.report` discovers the `:done` keys, loads each payload and
+# hands the `(DataKey, Dict)` pairs to `recipe`; only `recipe` is this project's.
+#
+#     julia --project=report report/report.jl configs/production.toml
 
 using DataVault: DataVault
 using ExampleSweep: ExampleSweep
-using ParamIO: ParamIO
+using ParamIO: ParamIO   # also a PinaxDataVaultExt trigger; without it `Pinax.report` is a stub
 using Pinax
 using Plots
 
@@ -33,11 +20,8 @@ vault = DataVault.Vault(CONFIG; run="phase1")
 """
     recipe(pairs)
 
-Build the document from `(DataKey, Dict)` pairs. This is the project-specific half;
-everything around it is the same in every project.
-
-`summarise` is `../src/ExampleSweep.jl`'s — the same function `scripts/collect.jl`
-prints, so the figure and the cluster's table cannot drift apart.
+Build the document. `summarise` is `../src/ExampleSweep.jl`'s, so this and
+`scripts/collect.jl` cannot report different numbers.
 """
 function recipe(pairs)
     rows = ExampleSweep.summarise(pairs)
@@ -52,8 +36,7 @@ function recipe(pairs)
     for a in sort(unique(r.a for r in rows))
         sel = filter(r -> r.a == a, rows)
         dts = sort(unique(r.dt for r in sel))
-        # `total_samples > 1` puts several samples behind one (a, dt); average within the key
-        # rather than drawing each one, so the curve has one point per swept value.
+        # one point per swept `dt`, so `total_samples > 1` averages rather than overplots
         errs = [
             (v=[r.rel_error for r in sel if r.dt == d]; sum(v) / length(v)) for d in dts
         ]

@@ -1,22 +1,12 @@
-#==============================================================================
- report.jl — the vault → figures driver. Run with `--project=report`, never the compute env.
-
-     julia --project=report report/report.jl configs/production.toml
-
- `Pinax.report(vault, recipe)` is the seam, and it lives in `PinaxDataVaultExt` — an extension that
- loads only when Pinax, DataVault and ParamIO are all present. That is why report/Project.toml
- declares ParamIO even though DataVault would pull it in regardless; without the extension the core
- `Pinax.report` is an error stub, so a missing dependency surfaces as a message about DataVault
- rather than as a MethodError.
-
- The driver is project-independent — discover the `:done` keys, load each payload, hand the
- `(DataKey, Dict)` pairs to `recipe`, render the human gallery and agent.json with the vault wired
- in. Only `recipe` is this project's.
-==============================================================================#
+# report.jl — the finished vault, rendered twice: an HTML gallery for a human and an
+# `agent.json` for an LLM. `Pinax.report` discovers the `:done` keys, loads each payload and
+# hands the `(DataKey, Dict)` pairs to `recipe`; only `recipe` is this project's.
+#
+#     julia --project=report report/report.jl configs/production.toml
 
 using DataVault: DataVault
 using ExampleMonteCarlo: ExampleMonteCarlo
-using ParamIO: ParamIO
+using ParamIO: ParamIO   # also a PinaxDataVaultExt trigger; without it `Pinax.report` is a stub
 using Pinax
 using Plots
 
@@ -31,8 +21,8 @@ vault = DataVault.Vault(CONFIG; run="phase1")
 """
     recipe(pairs)
 
-Build the document from `(DataKey, Dict)` pairs. `summarise` is `../src/ExampleMonteCarlo.jl`'s —
-the same reduction `scripts/collect.jl` prints as a table.
+Build the document. `summarise` is `../src/ExampleMonteCarlo.jl`'s, so this and
+`scripts/collect.jl` cannot report different numbers.
 """
 function recipe(pairs)
     rows = ExampleMonteCarlo.summarise(pairs)
@@ -42,13 +32,12 @@ function recipe(pairs)
     for L in sort(unique(r.L for r in rows))
         sel = filter(r -> r.L == L, rows)
         Ts = sort(unique(r.kbT for r in sel))
-        # `total_samples > 1` puts several independent chains behind one (L, kbT); average them.
+        # one point per swept `kbT`, so `total_samples > 1` averages the chains rather than overplots
         avg(f) = [(v=[f(r) for r in sel if r.kbT == T]; sum(v) / length(v)) for T in Ts]
         plot!(binder, Ts, avg(r -> r.binder); marker=:circle, label="L = $L")
         plot!(mag, Ts, avg(r -> r.magnetization); marker=:circle, label="L = $L")
     end
-    # Both get the label, not just the first: an unlabelled series reaches `agent.json` as a
-    # nameless row, and the machine-readable face is half of what Pinax is for.
+    # both labelled: an unlabelled series reaches `agent.json` as a nameless row
     vline!(binder, [TC]; ls=:dash, c=:red, label="exact Tc")
     vline!(mag, [TC]; ls=:dash, c=:red, label="exact Tc")
 
