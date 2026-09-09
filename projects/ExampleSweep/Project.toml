@@ -3,10 +3,6 @@ uuid = "00000000-0000-4000-8000-000000000001"
 version = "0.1.0"
 authors = ["Your Name <you@example.com>"]
 
-# COMPUTE env. Kept lean on purpose: no plotting, no Pinax. Those live in
-# `report/`, which reads the same DataVault off disk rather than sharing this
-# environment — so a figure dependency can never pull itself onto a compute node.
-
 [deps]
 DataVault = "23f5f8f6-b4da-40ee-8c72-c53b6c5de94f"
 MyModule = "00000000-0000-4000-8000-000000000000"

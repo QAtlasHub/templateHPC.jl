@@ -9,18 +9,27 @@ using DataVault: DataVault
 export summarise
 
 """
+    summarise(pairs) -> Vector{NamedTuple}
     summarise(vault) -> Vector{NamedTuple}
 
-Read every finished point back and reduce it. Replace the body; keep the shape,
-so `scripts/collect.jl` and `report/report.jl` stay in agreement.
+Reduce every finished point. `pairs` is the reduction; the `vault` method only reads
+them off disk first — `Pinax.report` already holds the pairs, `scripts/collect.jl` does
+not. One reduction either way, so the two cannot report different numbers.
+
+Replace the body; keep the shape.
 """
-function summarise(vault)
+function summarise(pairs::AbstractVector)
     rows = NamedTuple[]
-    for key in DataVault.keys(vault; status=:done)
-        d = DataVault.load(vault, key)
+    for (_, d) in pairs
         push!(rows, (; a=d["a"], dt=d["dt"], rel_error=d["rel_error"]))
     end
     return sort(rows; by=r -> (r.a, r.dt))
+end
+
+function summarise(vault::DataVault.Vault)
+    return summarise([
+        (k, DataVault.load(vault, k)) for k in DataVault.keys(vault; status=:done)
+    ])
 end
 
 end # module ExampleSweep

@@ -1,24 +1,18 @@
-# report/ — the render environment.
-#
-# SEPARATE from the compute env one level up, deliberately: `scripts/compute.jl`
-# runs with lean deps and may run on a cluster, while this reads the same on-disk
-# vault and draws it. The reduction is NOT duplicated here — it lives in
-# `../src/ExampleSweep.jl` and both sides call it.
-#
-# No `name`/`uuid`: this is an environment, not a package.
-
 [deps]
 DataVault = "23f5f8f6-b4da-40ee-8c72-c53b6c5de94f"
 ExampleSweep = "00000000-0000-4000-8000-000000000001"
+ParamIO = "938a3ac2-d340-473c-bcf1-88af577e4ccf"
 Pinax = "e782a80a-1ac9-479e-ba2b-0f3433ef5b4f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [sources]
 ExampleSweep = {path = ".."}
-# TEMPORARY, like SweepRunner one level up: Pinax is awaiting General registration.
+# TEMPORARY: Pinax is awaiting its first General registration. Delete this line once it lands.
 Pinax = {rev = "main", url = "https://github.com/QAtlasHub/Pinax.jl.git"}
 
 [compat]
 DataVault = "0.7"
+ParamIO = "0.4"
+Pinax = "0.1"
 Plots = "1"
-julia = "1.10"
+julia = "1.12"

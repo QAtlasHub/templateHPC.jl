@@ -80,15 +80,16 @@ function work_fn(key)
 end
 
 """
+    summarise(pairs) -> Vector{NamedTuple}
     summarise(vault) -> Vector{NamedTuple}
 
-Every finished point, sorted. `scripts/collect.jl` and `report/report.jl` both call this, so the
-table printed on the cluster and the figure drawn afterwards cannot disagree.
+Every finished point, sorted. `pairs` is the reduction; the `vault` method only reads them off
+disk first — `Pinax.report` already holds the pairs, `scripts/collect.jl` does not. One reduction
+either way, so the two cannot report different numbers.
 """
-function summarise(vault)
+function summarise(pairs::AbstractVector)
     rows = NamedTuple[]
-    for key in DataVault.keys(vault; status=:done)
-        d = DataVault.load(vault, key)
+    for (_, d) in pairs
         push!(
             rows,
             (;
@@ -101,6 +102,12 @@ function summarise(vault)
         )
     end
     return sort(rows; by=r -> (r.L, r.kbT))
+end
+
+function summarise(vault::DataVault.Vault)
+    return summarise([
+        (k, DataVault.load(vault, k)) for k in DataVault.keys(vault; status=:done)
+    ])
 end
 
 end # module ExampleMonteCarlo

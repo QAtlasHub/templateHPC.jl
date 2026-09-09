@@ -3,11 +3,6 @@ uuid = "00000000-0000-4000-8000-000000000003"
 version = "0.1.0"
 authors = ["Your Name <you@example.com>"]
 
-# COMPUTE env. No plotting backend and no Pinax — those are in `report/`, which reads the same vault
-# off disk. That separation is the reason this project can exist at all: the physics packages below
-# were each carrying Plots as a hard dependency until it was moved behind an extension, and a
-# `load=` of the work module ships whatever it pulls to every worker.
-
 [deps]
 ClassicalMonteCarlo = "faaa8aa3-7fc9-41cf-84af-9d0c24f78989"
 DataVault = "23f5f8f6-b4da-40ee-8c72-c53b6c5de94f"
