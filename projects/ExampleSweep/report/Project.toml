@@ -5,11 +5,18 @@
 # vault and draws it. The reduction is NOT duplicated here — it lives in
 # `../src/ExampleSweep.jl` and both sides call it.
 #
+# ParamIO is declared even though DataVault already depends on it. `Pinax.report`
+# EXISTS only when Pinax, DataVault and ParamIO are all loaded — they are the trigger
+# pair of `PinaxDataVaultExt`, which is where that method is defined; the core Pinax
+# method is an error stub. DataVault would pull ParamIO in, but an indirect dependency
+# cannot be `using`-ed by name, so report.jl naming it requires this line.
+#
 # No `name`/`uuid`: this is an environment, not a package.
 
 [deps]
 DataVault = "23f5f8f6-b4da-40ee-8c72-c53b6c5de94f"
 ExampleSweep = "00000000-0000-4000-8000-000000000001"
+ParamIO = "938a3ac2-d340-473c-bcf1-88af577e4ccf"
 Pinax = "e782a80a-1ac9-479e-ba2b-0f3433ef5b4f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
@@ -20,5 +27,10 @@ Pinax = {rev = "main", url = "https://github.com/QAtlasHub/Pinax.jl.git"}
 
 [compat]
 DataVault = "0.7"
+ParamIO = "0.4"
+Pinax = "0.1"
 Plots = "1"
-julia = "1.10"
+# Pinax's floor, not a preference: it declares `julia = "1.12"`. The compute env one
+# level up still says 1.10, and that is the point — the cluster side is not dragged
+# up by a dependency only the render side has.
+julia = "1.12"

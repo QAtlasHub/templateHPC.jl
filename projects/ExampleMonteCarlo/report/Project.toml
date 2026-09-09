@@ -2,19 +2,29 @@
 # cluster and carries no plotting backend, while this reads the same on-disk vault and draws it.
 # The reduction is not duplicated here — it is `../src/ExampleMonteCarlo.jl`, and both sides call it.
 #
+# Pinax + DataVault + ParamIO together are what make `Pinax.report` exist: it is defined in
+# `PinaxDataVaultExt`, whose triggers are DataVault and ParamIO, and the core Pinax method is an
+# error stub. All three are therefore declared, not left to arrive as somebody's indirect dependency.
+#
 # No `name`/`uuid`: an environment, not a package.
 
 [deps]
 DataVault = "23f5f8f6-b4da-40ee-8c72-c53b6c5de94f"
 ExampleMonteCarlo = "00000000-0000-4000-8000-000000000003"
 ParamIO = "938a3ac2-d340-473c-bcf1-88af577e4ccf"
+Pinax = "e782a80a-1ac9-479e-ba2b-0f3433ef5b4f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [sources]
 ExampleMonteCarlo = {path = ".."}
+# TEMPORARY, like the compute env's own sources: Pinax is awaiting General registration.
+Pinax = {rev = "main", url = "https://github.com/QAtlasHub/Pinax.jl.git"}
 
 [compat]
 DataVault = "0.7"
 ParamIO = "0.4"
+Pinax = "0.1"
 Plots = "1"
-julia = "1.10"
+# Pinax's floor, not a preference: it declares `julia = "1.12"`. The compute env one level up stays
+# at 1.10 — a dependency only the render side has must not raise the cluster side's floor.
+julia = "1.12"
